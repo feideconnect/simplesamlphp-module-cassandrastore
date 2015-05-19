@@ -14,6 +14,6 @@
     "require": {
         "php": "~5.2",
         "simplesamlphp/composer-module-installer": "~1.0",
-        "evseevnn/php-cassandra-binary": "dev-master#31fa28eb756e5d06470a1e4ae4698d44250231b8"
+        "duoshuo/php-cassandra": "dev-master"
     }
 }

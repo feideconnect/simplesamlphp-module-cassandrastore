@@ -29,7 +29,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		$keyspace 	= $config->getString('store.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('store.cassandra.nodes');
 
-		$this->db = new \evseevnn\Cassandra\Database($nodes, $keyspace);
+		$this->db = new \Cassandra\Connection($nodes, $keyspace);
 		$this->db->connect();
 
 	}
@@ -53,14 +53,22 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		$query = ' SELECT value FROM "session" WHERE type = :type AND key = :key';
 		$params = array('type' => $type, 'key' => $key);
 
-		// echo "about to perform a query \n"; print_r($query); echo "\n"; print_r($params); 
+		// echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params); 
 		// echo "\n\n";
 		// debug_print_backtrace();
 		// echo "\n------\n\n";
+		// exit;
 
-		$result = $this->db->query($query, $params);
+		// $result = $this->db->query($query, $params);
 
-		// echo "result is "; print_r($result);
+		$response = $this->db->querySync($query, $params,
+			\Cassandra\Request\Request::CONSISTENCY_QUORUM,
+		    [
+				'names_for_values' => true
+		    ]);
+		$result = $response->fetchAll();
+
+		// echo "result is "; print_r($result); exit;
 
 		if (empty($result)) return null;
 		$value = $result[0]['value'];
