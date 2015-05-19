@@ -8,7 +8,7 @@
  *
  * @package simpleSAMLphp
  */
-class sspmod_cassandrastore_CassandraStore extends SimpleSAML_Store {
+class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 
 	/**
 	 * The Database object.
