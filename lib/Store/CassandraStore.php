@@ -68,13 +68,21 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		    ]);
 		$result = $response->fetchAll();
 
-		// echo "result is "; print_r($result); exit;
 
 		if (empty($result)) return null;
-		$value = $result[0]['value'];
+		if (count($result) < 1) return null;
+		$data = $result[0];
+
+
+	// echo var_dump($data); 
+
+		$value = $data["value"];
+
+
 		if (is_resource($value)) {
 			$value = stream_get_contents($value);
 		}
+
 		$value = urldecode($value);
 		$value = unserialize($value);
 
@@ -117,8 +125,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		];
 		$query = 'INSERT INTO "session" (type, key, value) VALUES (:type, :key, :value)';
 		// echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
-		$result = $this->db->query($query, $params);
-
+		// $result = $this->db->query($query, $params);
+		$response = $this->db->querySync($query, $params,
+			\Cassandra\Request\Request::CONSISTENCY_QUORUM,
+		    [
+				'names_for_values' => true
+		    ]);
 
 	}
 
@@ -143,7 +155,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		];
 		$query = 'DELETE FROM "session" WHERE (type = :type AND key = :key)';
 		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
-		$result = $this->db->query($query, $params);
+		// $result = $this->db->query($query, $params);
+		$response = $this->db->querySync($query, $params,
+			\Cassandra\Request\Request::CONSISTENCY_QUORUM,
+		    [
+				'names_for_values' => true
+		    ]);
 
 	}
 
