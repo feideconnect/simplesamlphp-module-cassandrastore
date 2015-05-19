@@ -1,5 +1,5 @@
 {
-    "name": "feideconnect/simplesamlphp-cassandra-store",
+    "name": "feideconnect/simplesamlphp-module-cassandrastore",
     "description": "Cassandra Store for SimpleSAMLphp.",
     "type": "simplesamlphp-module",
     "keywords": [ "saml2", "metadata" ],
