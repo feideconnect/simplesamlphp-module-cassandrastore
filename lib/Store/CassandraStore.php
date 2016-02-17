@@ -28,8 +28,30 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 
 		$keyspace 	= $config->getString('store.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('store.cassandra.nodes');
+		$use_ssl    = $config->getBoolean('store.cassandra.use_ssl', false);
+		$username   = $config->getString('store.cassandra.username', null);
+		$password   = $config->getString('store.cassandra.password', null);
 
-		$this->db = new \Cassandra\Connection($nodes, $keyspace);
+		$hostprefix = '';
+		if ($use_ssl) {
+			$hostprefix = 'ssl://';
+		}
+
+		$nodelist = [];
+		foreach ($nodes as $node) {
+			$node_data = [
+				'host' => $hostprefix . $node,
+				'port' => 9042,
+				'class'    => 'Cassandra\Connection\Stream',
+			];
+			if ($username and $password) {
+				$node_data['username'] = $username;
+				$node_data['password'] = $password;
+			}
+			$nodelist[] = $node_data;
+		}
+
+		$this->db = new \Cassandra\Connection($nodelist, $keyspace);
 		$this->db->connect();
 
 	}
