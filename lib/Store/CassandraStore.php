@@ -29,31 +29,30 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		$keyspace 	= $config->getString('store.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('store.cassandra.nodes');
 		$use_ssl    = $config->getBoolean('store.cassandra.use_ssl', false);
+		$ssl_ca     = $config->getString('store.cassandra.ssl_ca', null);
 		$username   = $config->getString('store.cassandra.username', null);
 		$password   = $config->getString('store.cassandra.password', null);
 
-		$hostprefix = '';
+		$cluster = \Cassandra::cluster()
+				 ->withContactPoints(implode(',', $nodes))
+				 ->withDefaultConsistency(\Cassandra::CONSISTENCY_LOCAL_QUORUM);
+
+		if (isset($username) && isset($password)) {
+			$cluster = $cluster->withCredentials($username, $password);
+		}
+
 		if ($use_ssl) {
-			$hostprefix = 'ssl://';
-		}
-
-		$nodelist = [];
-		foreach ($nodes as $node) {
-			$node_data = [
-				'host' => $hostprefix . $node,
-				'port' => 9042,
-				'class'    => 'Cassandra\Connection\Stream',
-			];
-			if ($username and $password) {
-				$node_data['username'] = $username;
-				$node_data['password'] = $password;
+			$ssl = \Cassandra::ssl()
+				 ->withVerifyFlags(\Cassandra::VERIFY_PEER_CERT);
+			if ($ssl_ca) {
+				$ssl = $ssl->withTrustedCerts($ssl_ca);
 			}
-			$nodelist[] = $node_data;
+			$ssl = $ssl->build();
+			$cluster = $cluster->withSSL($ssl);
 		}
 
-		$this->db = new \Cassandra\Connection($nodelist, $keyspace);
-		$this->db->connect();
-
+		$cluster = $cluster->build();
+		$this->db = $cluster->connect($keyspace);
 	}
 
 
@@ -83,28 +82,17 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 
 		// $result = $this->db->query($query, $params);
 
-		$response = $this->db->querySync($query, $params,
-			\Cassandra\Request\Request::CONSISTENCY_QUORUM,
-		    [
-				'names_for_values' => true
-		    ]);
-		$result = $response->fetchAll();
+		$statement = new \Cassandra\SimpleStatement($query);
+		$options = new \Cassandra\ExecutionOptions([
+			'arguments' => $params,
+			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
+		]);
+		$response = $this->db->execute($statement, $options);
 
-
-		if (empty($result)) return null;
-		if (count($result) < 1) return null;
-		$data = $result[0];
-
-
-	// echo var_dump($data); 
+		if (count($response) < 1) return null;
+		$data = $response[0];
 
 		$value = $data["value"];
-
-
-		if (is_resource($value)) {
-			$value = stream_get_contents($value);
-		}
-
 		$value = urldecode($value);
 		$value = unserialize($value);
 
@@ -148,12 +136,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		$query = 'INSERT INTO "session" (type, key, value) VALUES (:type, :key, :value)';
 		// echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
 		// $result = $this->db->query($query, $params);
-		$response = $this->db->querySync($query, $params,
-			\Cassandra\Request\Request::CONSISTENCY_QUORUM,
-		    [
-				'names_for_values' => true
-		    ]);
-
+		$statement = new \Cassandra\SimpleStatement($query);
+		$options = new \Cassandra\ExecutionOptions([
+			'arguments' => $params,
+			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
+		]);
+		$this->db->execute($statement, $options);
 	}
 
 
@@ -178,12 +166,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		$query = 'DELETE FROM "session" WHERE (type = :type AND key = :key)';
 		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
 		// $result = $this->db->query($query, $params);
-		$response = $this->db->querySync($query, $params,
-			\Cassandra\Request\Request::CONSISTENCY_QUORUM,
-		    [
-				'names_for_values' => true
-		    ]);
-
+		$statement = new \Cassandra\SimpleStatement($query);
+		$options = new \Cassandra\ExecutionOptions([
+			'arguments' => $params,
+			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
+		]);
+		$this->db->execute($statement, $options);
 	}
 
 }
