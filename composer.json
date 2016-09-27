@@ -13,6 +13,6 @@
     ],
     "require": {
         "php": "~5.2",
-        "simplesamlphp/composer-module-installer": "~1.0",
+        "simplesamlphp/composer-module-installer": "~1.0"
     }
 }
