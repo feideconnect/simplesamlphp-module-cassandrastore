@@ -120,9 +120,14 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 			$key = sha1($key);
 		}
 
-		// if ($expire !== NULL) {
-		// 	$expire = gmdate('Y-m-d H:i:s', $expire);
-		// }
+		$ttlstring = '';
+		if ($expire !== NULL) {
+			$ttl = intval($expire - time());
+			if ($ttl < 0) {
+				return;
+			}
+			$ttlstring = ' USING TTL ' . $ttl;
+		}
 
 		$value = serialize($value);
 		$value = rawurlencode($value);
@@ -133,7 +138,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 			"key"	=> $key,
 			"value"	=> $value
 		];
-		$query = 'INSERT INTO "session" (type, key, value) VALUES (:type, :key, :value)';
+		$query = 'INSERT INTO "session" (type, key, value) VALUES (:type, :key, :value)' . $ttlstring;
 		// echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
 		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
