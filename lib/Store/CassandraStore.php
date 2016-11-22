@@ -94,8 +94,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
 		]);
-		$response = $this->db->execute($statement, $options);
-
+		try {
+			$response = $this->db->execute($statement, $options);
+		} catch (\Cassandra\Exception $e) {
+			error_log("Received cassandra exception" . $e);
+			throw $e;
+		}
 		if (count($response) < 1) return null;
 		$data = $response[0];
 
@@ -151,7 +155,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
 		]);
-		$this->db->execute($statement, $options);
+		try {
+			$this->db->execute($statement, $options);
+		} catch (\Cassandra\Exception $e) {
+			error_log("Received cassandra exception" . $e);
+			throw $e;
+		}
 	}
 
 
@@ -179,7 +188,12 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
 		]);
-		$this->db->execute($statement, $options);
+		try {
+			$this->db->execute($statement, $options);
+		} catch (\Cassandra\Exception $e) {
+			error_log("Received cassandra exception" . $e);
+			throw $e;
+		}
 	}
 
 }
