@@ -55,6 +55,15 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		$this->db = $cluster->connect($keyspace);
 	}
 
+	/**
+	 * Convert long keys to something we can fit in the database table
+	 */
+	private function dbKey($key) {
+		if (strlen($key) > 50) {
+			$key = sha1($key);
+		}
+		return $key;
+	}
 
 	/**
 	 * Retrieve a value from the datastore.
@@ -67,9 +76,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		assert('is_string($type)');
 		assert('is_string($key)');
 
-		if (strlen($key) > 50) {
-			$key = sha1($key);
-		}
+		$key = $this->dbKey($key);
 
 		$query = ' SELECT value FROM "session" WHERE type = :type AND key = :key';
 		$params = array('type' => $type, 'key' => $key);
@@ -116,9 +123,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		assert('is_string($key)');
 		assert('is_null($expire) || (is_int($expire) && $expire > 2592000)');
 
-		if (strlen($key) > 50) {
-			$key = sha1($key);
-		}
+		$key = $this->dbKey($key);
 
 		$ttlstring = '';
 		if ($expire !== NULL) {
@@ -160,9 +165,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		assert('is_string($type)');
 		assert('is_string($key)');
 
-		if (strlen($key) > 50) {
-			$key = sha1($key);
-		}
+		$key = $this->dbKey($key);
 
 		$params = [
 			"type" 	=> $type,
