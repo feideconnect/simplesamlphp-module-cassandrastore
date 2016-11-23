@@ -97,7 +97,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		try {
 			$response = $this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
-			error_log("Received cassandra exception" . $e);
+			error_log("Received cassandra exception in get: " . $e);
 			throw $e;
 		}
 		if (count($response) < 1) return null;
@@ -158,7 +158,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		try {
 			$this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
-			error_log("Received cassandra exception" . $e);
+			error_log("Received cassandra exception in set: " . $e);
 			throw $e;
 		}
 	}
@@ -191,7 +191,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML_Store {
 		try {
 			$this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
-			error_log("Received cassandra exception" . $e);
+			error_log("Received cassandra exception in delete: " . $e);
 			throw $e;
 		}
 	}
