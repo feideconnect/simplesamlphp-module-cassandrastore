@@ -3,7 +3,7 @@
     "description": "Cassandra Store for SimpleSAMLphp.",
     "type": "simplesamlphp-module",
     "keywords": [ "saml2", "metadata" ],
-    "homepage": "http://feideconnect.no",
+    "homepage": "http://docs.dataporten.no",
     "license": "LGPL-2.1",
     "authors": [
         {
