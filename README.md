@@ -11,7 +11,7 @@ Cassandra Store for SimpleSAMLphp
 In config.php
 
 ```
-	'session.handler'       => '_',
+'session.handler'       => 'cassandrastore:CassandraStore',
 ```
 
 
