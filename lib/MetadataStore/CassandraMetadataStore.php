@@ -194,6 +194,34 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
      }
 
 
+	public function getRegAuthUI($feed, $regauth) {
+		assert('is_string($feed)');
+		$query = 'SELECT entityid, enabled, verification, uimeta, reg, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
+		$params = array('feed' => $feed);
+		$statement = new \Cassandra\SimpleStatement($query);
+		$options = new \Cassandra\ExecutionOptions([
+			'arguments' => $params,
+			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
+		]);
+		try {
+			$response = $this->db->execute($statement, $options);
+		} catch (\Cassandra\Exception $e) {
+			error_log("Received cassandra exception in get: " . $e);
+			throw $e;
+		}
+		$res = [];
+		foreach($response AS $row) {
+			if ($row['reg'] !== $regauth) { continue; }
+			// $row['metadata'] = json_decode($row['metadata'], true);
+			$row['uimeta'] = json_decode($row['uimeta'], true);
+			$row['verification'] = json_decode($row['verification'], true);
+			$row['created'] = (isset($row['created']) ? $row['created']->time() : null);
+			$row['updated'] = (isset($row['updated']) ? $row['updated']->time() : null);
+			$res[$row['entityid']] = $row;
+		}
+		return $res;
+	}
+
      public function getFeed($feed) {
          assert('is_string($feed)');
          // $key = $this->dbKey($key);
