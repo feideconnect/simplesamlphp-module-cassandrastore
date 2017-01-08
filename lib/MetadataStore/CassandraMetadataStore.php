@@ -193,10 +193,32 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 
      }
 
+	public function getLogo($feed, $entityid) {
+		$query = 'SELECT enabled, logo, logo_updated, logo_etag FROM "entities" WHERE feed = :feed AND entityid = :entityid';
+		$params = [
+			'feed' => $feed,
+			'entityid' => $entityid,
+		];
+		$statement = new \Cassandra\SimpleStatement($query);
+		$options = new \Cassandra\ExecutionOptions([
+			'arguments' => $params,
+			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
+		]);
+		try {
+			$response = $this->db->execute($statement, $options);
+		} catch (\Cassandra\Exception $e) {
+			error_log("Received cassandra exception in get: " . $e);
+			throw $e;
+		}
+		if (count($response) < 1) return null;
+		$row = $response[0];
+		return $row;
+	}
+
 
 	public function getRegAuthUI($feed, $regauth) {
 		assert('is_string($feed)');
-		$query = 'SELECT entityid, enabled, verification, uimeta, reg, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
+		$query = 'SELECT entityid, enabled, verification, uimeta, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
 		$params = array('feed' => $feed);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = new \Cassandra\ExecutionOptions([
@@ -226,14 +248,14 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
          assert('is_string($feed)');
          // $key = $this->dbKey($key);
 
-         $query = 'SELECT entityid, feed, enabled, verification, metadata, uimeta, reg, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
+         $query = 'SELECT entityid, feed, enabled, verification, metadata, uimeta, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
          $params = array('feed' => $feed);
 
-         // echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params);
-         // echo "\n\n";
-         // debug_print_backtrace();
-         // echo "\n------\n\n";
-         // exit;
+        //  echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params);
+        //  echo "\n\n";
+        //  debug_print_backtrace();
+        //  echo "\n------\n\n";
+        //  exit;
          // $result = $this->db->query($query, $params);
 
          $statement = new \Cassandra\SimpleStatement($query);
@@ -252,6 +274,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
          foreach($response AS $row) {
              $row['metadata'] = json_decode($row['metadata'], true);
              $row['uimeta'] = json_decode($row['uimeta'], true);
+			 $row['logo_etag'] = $row['logo_etag'];
              $row['verification'] = json_decode($row['verification'], true);
              $row['created'] = (isset($row['created']) ? $row['created']->time() : null);
              $row['updated'] = (isset($row['updated']) ? $row['updated']->time() : null);
