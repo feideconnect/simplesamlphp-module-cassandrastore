@@ -272,6 +272,9 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
          // if (count($response) < 1) return [];
          $res = [];
          foreach($response AS $row) {
+			 if (!$row['enabled']) {
+				 continue;
+			 }
              $row['metadata'] = json_decode($row['metadata'], true);
              $row['uimeta'] = json_decode($row['uimeta'], true);
 			 $row['logo_etag'] = $row['logo_etag'];
