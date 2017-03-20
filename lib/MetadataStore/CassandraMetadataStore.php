@@ -180,12 +180,16 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
          if (count($response) < 1) return null;
          $row = $response[0];
 
-         $row['metadata'] = json_decode($row['metadata'], true);
-         $row['uimeta'] = json_decode($row['uimeta'], true);
-         $row['verification'] = json_decode($row['verification'], true);
+         foreach (['metadata', 'uimeta', 'verification'] as $key) {
+             if (isset($row[$key])) {
+                 $row[$key] = json_decode($row[$key], true);
+             } else {
+                 $row[$key] = null;
+             }
+         }
          $row['created'] = (isset($row['created']) ? $row['created']->time() : null);
          $row['updated'] = (isset($row['updated']) ? $row['updated']->time() : null);
-         if (!$row['enabled']) {
+         if (!isset($row['enabled']) || !$row['enabled']) {
              return null;
          }
         //  echo '<pre>'; print_r($row); exit;
