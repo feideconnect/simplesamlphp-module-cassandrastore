@@ -90,10 +90,10 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 		// $result = $this->db->query($query, $params);
 
 		$statement = new \Cassandra\SimpleStatement($query);
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$response = $this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
@@ -151,10 +151,10 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 		// echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
 		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
@@ -184,10 +184,10 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
 		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
