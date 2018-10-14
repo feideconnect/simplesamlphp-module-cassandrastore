@@ -145,10 +145,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 			 'enabled' => true,
 			 'ts' => new \Cassandra\Timestamp(),
 		 ];
-         $options = new \Cassandra\ExecutionOptions([
+         $options = [
              'arguments' => $params,
              'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-         ]);
+         ];
          try {
              $this->db->execute($statement, $options);
          } catch (\Cassandra\Exception $e) {
@@ -167,10 +167,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
              'entityid' => $entityid,
          ];
          $statement = new \Cassandra\SimpleStatement($query);
-         $options = new \Cassandra\ExecutionOptions([
+         $options = [
              'arguments' => $params,
              'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-         ]);
+         ];
          try {
              $response = $this->db->execute($statement, $options);
          } catch (\Cassandra\Exception $e) {
@@ -204,10 +204,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 			'entityid' => $entityid,
 		];
 		$statement = new \Cassandra\SimpleStatement($query);
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$response = $this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
@@ -225,10 +225,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 		$query = 'SELECT entityid, enabled, verification, uimeta, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
 		$params = array('feed' => $feed);
 		$statement = new \Cassandra\SimpleStatement($query);
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$response = $this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
@@ -263,10 +263,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
          // $result = $this->db->query($query, $params);
 
          $statement = new \Cassandra\SimpleStatement($query);
-         $options = new \Cassandra\ExecutionOptions([
+         $options = [
              'arguments' => $params,
              'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-         ]);
+         ];
          try {
              $response = $this->db->execute($statement, $options);
          } catch (\Cassandra\Exception $e) {
@@ -311,10 +311,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
 		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
@@ -343,10 +343,10 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 			'enabled' => false,
 			'ts' => new \Cassandra\Timestamp(),
 		];
-		$options = new \Cassandra\ExecutionOptions([
+		$options = [
 			'arguments' => $params,
 			'consistency' => \Cassandra::CONSISTENCY_QUORUM,
-		]);
+		];
 		try {
 			$this->db->execute($statement, $options);
 		} catch (\Cassandra\Exception $e) {
