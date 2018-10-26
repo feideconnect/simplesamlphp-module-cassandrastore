@@ -45,7 +45,8 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 			$ssl = \Cassandra::ssl()
 				 ->withVerifyFlags(\Cassandra::VERIFY_PEER_CERT);
 			if ($ssl_ca) {
-				$ssl = $ssl->withTrustedCerts($ssl_ca);
+				 $ssl_ca_files = explode(',', $ssl_ca);
+				 $ssl = call_user_func_array(array($ssl, 'withTrustedCerts'), $ssl_ca_files);
 			}
 			$ssl = $ssl->build();
 			$cluster = $cluster->withSSL($ssl);
