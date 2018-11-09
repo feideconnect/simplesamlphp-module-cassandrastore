@@ -221,9 +221,9 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 	}
 
 
-	public function getRegAuthUI($feed, $regauth) {
+	public function getRegAuthUI($feed, $regauth, $noHidden = false) {
 		assert('is_string($feed)');
-		$query = 'SELECT entityid, enabled, verification, uimeta, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
+		$query = 'SELECT entityid, enabled, verification, uimeta, metadata, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
 		$params = array('feed' => $feed);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
@@ -239,7 +239,13 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 		$res = [];
 		foreach($response AS $row) {
 			if ($row['reg'] !== $regauth) { continue; }
-			// $row['metadata'] = json_decode($row['metadata'], true);
+            if ($noHidden) {
+                $metadata = json_decode($row['metadata'], true);
+                if ($metadata['hide.from.discovery']) {
+                    continue;
+                }
+            }
+
 			$row['uimeta'] = json_decode($row['uimeta'], true);
 			$row['verification'] = json_decode($row['verification'], true);
 			$row['created'] = (isset($row['created']) ? $row['created']->time() : null);
