@@ -24,7 +24,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 	 */
 	protected function __construct() {
 
-		$config = SimpleSAML_Configuration::getInstance();
+		$config = SimpleSAML\Configuration::getInstance();
 
 		$keyspace 	= $config->getString('store.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('store.cassandra.nodes');
