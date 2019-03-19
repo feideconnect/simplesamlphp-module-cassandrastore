@@ -5,7 +5,7 @@
  * A Cassandra (database) datastore for metadata
  */
 
-class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleSAML_Metadata_MetaDataStorageSource {
+class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleSAML\Metadata\MetaDataStorageSource {
 	/**
 	 * The Database object.
      *
@@ -29,7 +29,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
         assert('is_array($sourceConfig)');
 		// $config = [];
 
-        $config = SimpleSAML_Configuration::getInstance();
+        $config = SimpleSAML\Configuration::getInstance();
 
         $keyspace 	= $config->getString('metastore.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('metastore.cassandra.nodes');
