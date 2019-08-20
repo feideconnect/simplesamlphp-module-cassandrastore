@@ -73,7 +73,7 @@ class CassandraStore extends \SimpleSAML\Store {
 	 *
 	 * @param string $type  The datatype.
 	 * @param string $key  The key.
-	 * @return mixed|NULL  The value.
+	 * @return mixed|null  The value.
 	 */
 	public function get($type, $key) {
 		assert('is_string($type)');
@@ -110,8 +110,8 @@ class CassandraStore extends \SimpleSAML\Store {
 		$value = urldecode($value);
 		$value = unserialize($value);
 
-		if ($value === FALSE) {
-			return NULL;
+		if ($value === false) {
+			return null;
 		}
 		return $value;
 	}
@@ -123,9 +123,9 @@ class CassandraStore extends \SimpleSAML\Store {
 	 * @param string $type  The datatype.
 	 * @param string $key  The key.
 	 * @param mixed $value  The value.
-	 * @param int|NULL $expire  The expiration time (unix timestamp), or NULL if it never expires.
+	 * @param int|null $expire  The expiration time (unix timestamp), or null if it never expires.
 	 */
-	public function set($type, $key, $value, $expire = NULL) {
+	public function set($type, $key, $value, $expire = null) {
 		assert('is_string($type)');
 		assert('is_string($key)');
 		assert('is_null($expire) || (is_int($expire) && $expire > 2592000)');
@@ -133,7 +133,7 @@ class CassandraStore extends \SimpleSAML\Store {
 		$key = $this->dbKey($key);
 
 		$ttlstring = '';
-		if ($expire !== NULL) {
+		if ($expire !== null) {
 			$ttl = intval($expire - time());
 			if ($ttl < 0) {
 				return;

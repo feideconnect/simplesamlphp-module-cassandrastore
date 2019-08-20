@@ -81,7 +81,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 
         $metadataSet = [];
         $feed = $this->getFeed('edugain');
-        foreach($feed AS $entityId => &$entity) {
+        foreach($feed as $entityId => &$entity) {
             if ($entity['enabled'] && is_array($entity['metadata'])) {
                 $entity['metadata']['entityid'] = $entityId;
                 $metadataSet[$entityId] = $entity['metadata'];
@@ -94,7 +94,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 
     /**
      * This function retrieves metadata for the given entity id in the given set of metadata.
-     * It will return NULL if it is unable to locate the metadata.
+     * It will return null if it is unable to locate the metadata.
      *
      * This class implements this function using the getMetadataSet-function. A subclass should
      * override this function if it doesn't implement the getMetadataSet function, or if the
@@ -103,7 +103,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
      * @param string $index The entityId or metaindex we are looking up.
      * @param string $set The set we are looking for metadata in.
      *
-     * @return array | null An associative array with metadata for the given entity, or NULL if we are unable to
+     * @return array | null An associative array with metadata for the given entity, or null if we are unable to
      *         locate the entity.
      */
     public function getMetaData($index, $set)
@@ -125,7 +125,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 	 * @param string $type  The datatype.
 	 * @param string $key  The key.
 	 * @param mixed $value  The value.
-	 * @param int|NULL $expire  The expiration time (unix timestamp), or NULL if it never expires.
+	 * @param int|null $expire  The expiration time (unix timestamp), or null if it never expires.
 	 */
      public function insert($feed, $entityId, $metadata, $uimeta, $reg, $opUpdate = false) {
 
@@ -239,7 +239,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 			throw $e;
 		}
 		$res = [];
-		foreach($response AS $row) {
+		foreach($response as $row) {
 			if ($row['reg'] !== $regauth) { continue; }
             if ($noHidden) {
                 $metadata = json_decode($row['metadata'], true);
@@ -284,7 +284,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
          }
          // if (count($response) < 1) return [];
          $res = [];
-         foreach($response AS $row) {
+         foreach($response as $row) {
 			 if (!$row['enabled']) {
 				 continue;
 			 }
