@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleSAML\Module\cassandrastore\Store;
+
 /**
  * A Cassandra (database) datastore.
  *
@@ -8,7 +10,7 @@
  *
  * @package simpleSAMLphp
  */
-class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
+class CassandraStore extends \SimpleSAML\Store {
 
 	/**
 	 * The Database object.
@@ -24,7 +26,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 	 */
 	protected function __construct() {
 
-		$config = SimpleSAML\Configuration::getInstance();
+		$config = \SimpleSAML\Configuration::getInstance();
 
 		$keyspace 	= $config->getString('store.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('store.cassandra.nodes');
