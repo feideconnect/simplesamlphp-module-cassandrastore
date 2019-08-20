@@ -11,7 +11,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 	/**
 	 * The Database object.
      *
-	 * @var DB
+	 * @var \Cassandra\Session
 	 */
     public $db;
 
@@ -103,7 +103,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
      * @param string $index The entityId or metaindex we are looking up.
      * @param string $set The set we are looking for metadata in.
      *
-     * @return array An associative array with metadata for the given entity, or NULL if we are unable to
+     * @return array | null An associative array with metadata for the given entity, or NULL if we are unable to
      *         locate the entity.
      */
     public function getMetaData($index, $set)

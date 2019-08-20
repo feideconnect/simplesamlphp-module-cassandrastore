@@ -15,7 +15,7 @@ class CassandraStore extends \SimpleSAML\Store {
 	/**
 	 * The Database object.
 	 *
-	 * @var DB
+	 * @var \Cassandra\Session
 	 */
 	public $db;
 
