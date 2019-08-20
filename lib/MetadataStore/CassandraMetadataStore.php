@@ -130,8 +130,8 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
          assert('is_string($feed)');
          assert('is_string($entityId)');
          assert('is_array($metadata)');
-         $metadataJSON = json_encode($metadata, true);
-         $uimetaJSON = json_encode($uimeta, true);
+         $metadataJSON = json_encode($metadata);
+         $uimetaJSON = json_encode($uimeta);
          $query = 'INSERT INTO "entities" (feed, entityid, metadata, uimeta, reg, enabled, ' . ($opUpdate ? 'updated' : 'created') . ') VALUES (:feed, :entityid, :metadata, :uimeta, :reg, :enabled, :ts)';
          $statement = new \Cassandra\SimpleStatement($query);
          $params = [
