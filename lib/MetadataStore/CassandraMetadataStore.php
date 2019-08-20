@@ -1,15 +1,17 @@
 <?php
 
+namespace SimpleSAML\Module\cassandrastore\MetadataStore;
+
 
 /**
  * A Cassandra (database) datastore for metadata
  */
 
-class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleSAML\Metadata\MetaDataStorageSource {
+class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource {
 	/**
 	 * The Database object.
      *
-	 * @var DB
+	 * @var \Cassandra\Session
 	 */
     public $db;
 
@@ -27,9 +29,8 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
      function __construct($sourceConfig)
      {
         assert('is_array($sourceConfig)');
-		// $config = [];
 
-        $config = SimpleSAML\Configuration::getInstance();
+        $config = \SimpleSAML\Configuration::getInstance();
 
         $keyspace 	= $config->getString('metastore.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('metastore.cassandra.nodes');
@@ -79,7 +80,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 
         $metadataSet = [];
         $feed = $this->getFeed('edugain');
-        foreach($feed AS $entityId => &$entity) {
+        foreach($feed as $entityId => &$entity) {
             if ($entity['enabled'] && is_array($entity['metadata'])) {
                 $entity['metadata']['entityid'] = $entityId;
                 $metadataSet[$entityId] = $entity['metadata'];
@@ -92,7 +93,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 
     /**
      * This function retrieves metadata for the given entity id in the given set of metadata.
-     * It will return NULL if it is unable to locate the metadata.
+     * It will return null if it is unable to locate the metadata.
      *
      * This class implements this function using the getMetadataSet-function. A subclass should
      * override this function if it doesn't implement the getMetadataSet function, or if the
@@ -101,7 +102,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
      * @param string $index The entityId or metaindex we are looking up.
      * @param string $set The set we are looking for metadata in.
      *
-     * @return array An associative array with metadata for the given entity, or NULL if we are unable to
+     * @return array | null An associative array with metadata for the given entity, or null if we are unable to
      *         locate the entity.
      */
     public function getMetaData($index, $set)
@@ -112,7 +113,6 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
         if ($set !== 'saml20-idp-remote') {
             return null;
         }
-        // echo "About to get entityid " . $index . "  " . $set; exit;
         return $this->getEntity('edugain', $index);
     }
 
@@ -123,19 +123,16 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 	 * @param string $type  The datatype.
 	 * @param string $key  The key.
 	 * @param mixed $value  The value.
-	 * @param int|NULL $expire  The expiration time (unix timestamp), or NULL if it never expires.
+	 * @param int|null $expire  The expiration time (unix timestamp), or null if it never expires.
 	 */
      public function insert($feed, $entityId, $metadata, $uimeta, $reg, $opUpdate = false) {
 
          assert('is_string($feed)');
          assert('is_string($entityId)');
          assert('is_array($metadata)');
-         // $key = $this->dbKey($key);
-         $metadataJSON = json_encode($metadata, true);
-         $uimetaJSON = json_encode($uimeta, true);
+         $metadataJSON = json_encode($metadata);
+         $uimetaJSON = json_encode($uimeta);
          $query = 'INSERT INTO "entities" (feed, entityid, metadata, uimeta, reg, enabled, ' . ($opUpdate ? 'updated' : 'created') . ') VALUES (:feed, :entityid, :metadata, :uimeta, :reg, :enabled, :ts)';
-         // echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
-         // $result = $this->db->query($query, $params);
          $statement = new \Cassandra\SimpleStatement($query);
          $params = [
 			 'feed' => $feed,
@@ -178,7 +175,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
              error_log("Received cassandra exception in get: " . $e);
              throw $e;
          }
-         if (count($response) < 1) return null;
+         if ($response === null || $response->count() < 1) return null;
          $row = $response[0];
 
          foreach (['metadata', 'uimeta', 'verification'] as $key) {
@@ -193,7 +190,6 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
          if (!isset($row['enabled']) || !$row['enabled']) {
              return null;
          }
-        //  echo '<pre>'; print_r($row); exit;
          return $row['metadata'];
 
      }
@@ -215,7 +211,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 			error_log("Received cassandra exception in get: " . $e);
 			throw $e;
 		}
-		if (count($response) < 1) return null;
+		if ($response === null || $response->count() < 1) return null;
 		$row = $response[0];
 		return $row;
 	}
@@ -237,7 +233,7 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 			throw $e;
 		}
 		$res = [];
-		foreach($response AS $row) {
+		foreach($response as $row) {
 			if ($row['reg'] !== $regauth) { continue; }
             if ($noHidden) {
                 $metadata = json_decode($row['metadata'], true);
@@ -257,17 +253,9 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 
      public function getFeed($feed) {
          assert('is_string($feed)');
-         // $key = $this->dbKey($key);
 
          $query = 'SELECT entityid, feed, enabled, verification, metadata, uimeta, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
          $params = array('feed' => $feed);
-
-        //  echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params);
-        //  echo "\n\n";
-        //  debug_print_backtrace();
-        //  echo "\n------\n\n";
-        //  exit;
-         // $result = $this->db->query($query, $params);
 
          $statement = new \Cassandra\SimpleStatement($query);
          $options = [
@@ -280,9 +268,8 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
              error_log("Received cassandra exception in get: " . $e);
              throw $e;
          }
-         // if (count($response) < 1) return [];
          $res = [];
-         foreach($response AS $row) {
+         foreach($response as $row) {
 			 if (!$row['enabled']) {
 				 continue;
 			 }
@@ -294,7 +281,6 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
              $row['updated'] = (isset($row['updated']) ? $row['updated']->time() : null);
              $res[$row['entityid']] = $row;
          }
-         //  print_r($res);
          return $res;
 
      }
@@ -315,8 +301,6 @@ class sspmod_cassandrastore_MetadataStore_CassandraMetadataStore extends SimpleS
 			"entityid"	=> $entityId
 		];
 		$query = 'DELETE FROM "entities" WHERE feed = :feed AND entityid = :entityid';
-		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
-		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,

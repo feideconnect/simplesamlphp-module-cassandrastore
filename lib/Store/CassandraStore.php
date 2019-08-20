@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleSAML\Module\cassandrastore\Store;
+
 /**
  * A Cassandra (database) datastore.
  *
@@ -8,12 +10,12 @@
  *
  * @package simpleSAMLphp
  */
-class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
+class CassandraStore extends \SimpleSAML\Store {
 
 	/**
 	 * The Database object.
 	 *
-	 * @var DB
+	 * @var \Cassandra\Session
 	 */
 	public $db;
 
@@ -24,7 +26,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 	 */
 	protected function __construct() {
 
-		$config = SimpleSAML\Configuration::getInstance();
+		$config = \SimpleSAML\Configuration::getInstance();
 
 		$keyspace 	= $config->getString('store.cassandra.keyspace');
 		$nodes 		= $config->getArrayize('store.cassandra.nodes');
@@ -71,7 +73,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 	 *
 	 * @param string $type  The datatype.
 	 * @param string $key  The key.
-	 * @return mixed|NULL  The value.
+	 * @return mixed|null  The value.
 	 */
 	public function get($type, $key) {
 		assert('is_string($type)');
@@ -81,14 +83,6 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 
 		$query = ' SELECT value FROM "session" WHERE type = :type AND key = :key';
 		$params = array('type' => $type, 'key' => $key);
-
-		// echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params); 
-		// echo "\n\n";
-		// debug_print_backtrace();
-		// echo "\n------\n\n";
-		// exit;
-
-		// $result = $this->db->query($query, $params);
 
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
@@ -101,15 +95,15 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 			error_log("Received cassandra exception in get: " . $e);
 			throw $e;
 		}
-		if (count($response) < 1) return null;
+		if ($response === null || $response->count() < 1) return null;
 		$data = $response[0];
 
 		$value = $data["value"];
 		$value = urldecode($value);
 		$value = unserialize($value);
 
-		if ($value === FALSE) {
-			return NULL;
+		if ($value === false) {
+			return null;
 		}
 		return $value;
 	}
@@ -121,9 +115,9 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 	 * @param string $type  The datatype.
 	 * @param string $key  The key.
 	 * @param mixed $value  The value.
-	 * @param int|NULL $expire  The expiration time (unix timestamp), or NULL if it never expires.
+	 * @param int|null $expire  The expiration time (unix timestamp), or null if it never expires.
 	 */
-	public function set($type, $key, $value, $expire = NULL) {
+	public function set($type, $key, $value, $expire = null) {
 		assert('is_string($type)');
 		assert('is_string($key)');
 		assert('is_null($expire) || (is_int($expire) && $expire > 2592000)');
@@ -131,7 +125,7 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 		$key = $this->dbKey($key);
 
 		$ttlstring = '';
-		if ($expire !== NULL) {
+		if ($expire !== null) {
 			$ttl = intval($expire - time());
 			if ($ttl < 0) {
 				return;
@@ -149,8 +143,6 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 			"value"	=> $value
 		];
 		$query = 'INSERT INTO "session" (type, key, value) VALUES (:type, :key, :value)' . $ttlstring;
-		// echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
-		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,
@@ -182,8 +174,6 @@ class sspmod_cassandrastore_Store_CassandraStore extends SimpleSAML\Store {
 			"key"	=> $key
 		];
 		$query = 'DELETE FROM "session" WHERE (type = :type AND key = :key)';
-		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
-		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,
