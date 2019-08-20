@@ -180,7 +180,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
              error_log("Received cassandra exception in get: " . $e);
              throw $e;
          }
-         if (count($response) < 1) return null;
+         if ($response === null || $response->count() < 1) return null;
          $row = $response[0];
 
          foreach (['metadata', 'uimeta', 'verification'] as $key) {
@@ -217,7 +217,7 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 			error_log("Received cassandra exception in get: " . $e);
 			throw $e;
 		}
-		if (count($response) < 1) return null;
+		if ($response === null || $response->count() < 1) return null;
 		$row = $response[0];
 		return $row;
 	}
