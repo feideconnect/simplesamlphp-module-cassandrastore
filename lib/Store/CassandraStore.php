@@ -84,14 +84,6 @@ class CassandraStore extends \SimpleSAML\Store {
 		$query = ' SELECT value FROM "session" WHERE type = :type AND key = :key';
 		$params = array('type' => $type, 'key' => $key);
 
-		// echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params); 
-		// echo "\n\n";
-		// debug_print_backtrace();
-		// echo "\n------\n\n";
-		// exit;
-
-		// $result = $this->db->query($query, $params);
-
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,
@@ -151,8 +143,6 @@ class CassandraStore extends \SimpleSAML\Store {
 			"value"	=> $value
 		];
 		$query = 'INSERT INTO "session" (type, key, value) VALUES (:type, :key, :value)' . $ttlstring;
-		// echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
-		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,
@@ -184,8 +174,6 @@ class CassandraStore extends \SimpleSAML\Store {
 			"key"	=> $key
 		];
 		$query = 'DELETE FROM "session" WHERE (type = :type AND key = :key)';
-		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
-		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,

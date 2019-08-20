@@ -29,7 +29,6 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
      function __construct($sourceConfig)
      {
         assert('is_array($sourceConfig)');
-		// $config = [];
 
         $config = \SimpleSAML\Configuration::getInstance();
 
@@ -114,7 +113,6 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
         if ($set !== 'saml20-idp-remote') {
             return null;
         }
-        // echo "About to get entityid " . $index . "  " . $set; exit;
         return $this->getEntity('edugain', $index);
     }
 
@@ -132,12 +130,9 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
          assert('is_string($feed)');
          assert('is_string($entityId)');
          assert('is_array($metadata)');
-         // $key = $this->dbKey($key);
          $metadataJSON = json_encode($metadata, true);
          $uimetaJSON = json_encode($uimeta, true);
          $query = 'INSERT INTO "entities" (feed, entityid, metadata, uimeta, reg, enabled, ' . ($opUpdate ? 'updated' : 'created') . ') VALUES (:feed, :entityid, :metadata, :uimeta, :reg, :enabled, :ts)';
-         // echo "About to insert \n"; print_r($query); print_r($params); echo "\n\n";
-         // $result = $this->db->query($query, $params);
          $statement = new \Cassandra\SimpleStatement($query);
          $params = [
 			 'feed' => $feed,
@@ -195,7 +190,6 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
          if (!isset($row['enabled']) || !$row['enabled']) {
              return null;
          }
-        //  echo '<pre>'; print_r($row); exit;
          return $row['metadata'];
 
      }
@@ -259,17 +253,9 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 
      public function getFeed($feed) {
          assert('is_string($feed)');
-         // $key = $this->dbKey($key);
 
          $query = 'SELECT entityid, feed, enabled, verification, metadata, uimeta, reg, logo_etag, created, updated FROM "entities" WHERE feed = :feed ALLOW FILTERING';
          $params = array('feed' => $feed);
-
-        //  echo "<pre>About to perform a query \n"; print_r($query); echo "\n"; print_r($params);
-        //  echo "\n\n";
-        //  debug_print_backtrace();
-        //  echo "\n------\n\n";
-        //  exit;
-         // $result = $this->db->query($query, $params);
 
          $statement = new \Cassandra\SimpleStatement($query);
          $options = [
@@ -282,7 +268,6 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
              error_log("Received cassandra exception in get: " . $e);
              throw $e;
          }
-         // if (count($response) < 1) return [];
          $res = [];
          foreach($response as $row) {
 			 if (!$row['enabled']) {
@@ -296,7 +281,6 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
              $row['updated'] = (isset($row['updated']) ? $row['updated']->time() : null);
              $res[$row['entityid']] = $row;
          }
-         //  print_r($res);
          return $res;
 
      }
@@ -317,8 +301,6 @@ class CassandraMetadataStore extends \SimpleSAML\Metadata\MetaDataStorageSource 
 			"entityid"	=> $entityId
 		];
 		$query = 'DELETE FROM "entities" WHERE feed = :feed AND entityid = :entityid';
-		// echo "About to delete \n"; print_r($query); print_r($params); echo "\n\n";
-		// $result = $this->db->query($query, $params);
 		$statement = new \Cassandra\SimpleStatement($query);
 		$options = [
 			'arguments' => $params,
